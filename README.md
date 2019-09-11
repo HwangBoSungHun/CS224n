@@ -6,5 +6,9 @@
 - Sigmoid function
 - Implementing word2vec(loss and gradient descent)
 - SGD optimizer
+### 3. a3
+- Machine Learning & Neural Networks
+- Neural Transition-Based Dependency Parsing
+
 
 

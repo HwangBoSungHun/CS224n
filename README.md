@@ -6,3 +6,5 @@
 - Sigmoid function
 - Implementing word2vec(loss and gradient descent)
 - SGD optimizer
+
+

@@ -30,7 +30,10 @@ class PartialParse(object):
         ###
         ### Note: The root token should be represented with the string "ROOT"
         ###
-
+        
+        self.stack = ['ROOT']
+        self.buffer = self.sentence.copy()
+        self.dependencies = []
 
         ### END YOUR CODE
 
@@ -49,8 +52,15 @@ class PartialParse(object):
         ###         1. Shift
         ###         2. Left Arc
         ###         3. Right Arc
-
-
+        
+        if transition == 'S':
+            self.stack.append(self.buffer.pop(0))
+        elif transition == 'LA':
+            tmp = self.stack.pop(-2)
+            self.dependencies.append((self.stack[-1], tmp))
+        elif transition == 'RA':
+            tmp = self.stack.pop(-1)
+            self.dependencies.append((self.stack[-1], tmp))
         ### END YOUR CODE
 
     def parse(self, transitions):
@@ -100,6 +110,27 @@ def minibatch_parse(sentences, model, batch_size):
     ###             contains references to the same objects. Thus, you should NOT use the `del` operator
     ###             to remove objects from the `unfinished_parses` list. This will free the underlying memory that
     ###             is being accessed by `partial_parses` and may cause your code to crash.
+    partial_parses = []
+    
+    for sentence in sentences:
+        partial_parses.append(PartialParse(sentence))
+    
+    unfinished_parses = partial_parses[:]
+    
+    while len(unfinished_parses) != 0:
+        mini_parses = unfinished_parses[0:batch_size]
+        unfinished_parses = unfinished_parses[batch_size:]
+
+        pred_transitions = model.predict(mini_parses)
+        i = 0
+        for mini_parse in mini_parses:
+            if len(mini_parse.buffer) != 0 and len(mini_parse.stack) != 1:
+                mini_parse.parse_step(pred_transitions[i])
+                print(i)
+                print(mini_parse)
+                i += 1
+
+
 
 
     ### END YOUR CODE
@@ -144,6 +175,7 @@ def test_parse():
     dependencies = PartialParse(sentence).parse(["S", "S", "S", "LA", "RA", "RA"])
     dependencies = tuple(sorted(dependencies))
     expected = (('ROOT', 'parse'), ('parse', 'sentence'), ('sentence', 'this'))
+    
     assert dependencies == expected,  \
         "parse test resulted in dependencies {:}, expected {:}".format(dependencies, expected)
     assert tuple(sentence) == ("parse", "this", "sentence"), \
@@ -184,7 +216,7 @@ def test_minibatch_parse():
     test_dependencies("minibatch_parse", deps[2],
                       (('only', 'ROOT'), ('only', 'arcs'), ('only', 'left')))
     test_dependencies("minibatch_parse", deps[3],
-                      (('again', 'ROOT'), ('again', 'arcs'), ('again', 'left'), ('again', 'only')))
+                      (('again', 'ROOT'), ('again', 'arcs'), ('again', 'left'), ('again', 'only'))) 
     print("minibatch_parse test passed!")
 
 

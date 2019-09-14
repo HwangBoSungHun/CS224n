@@ -74,7 +74,7 @@ class ParserModel(nn.Module):
         nn.init.xavier_uniform_(self.embed_to_hidden.weight, gain=1.0)
         self.dropout = nn.Dropout(p=self.dropout_prob)
         self.hidden_to_logits = nn.Linear(self.hidden_size, self.n_classes) # (200, 3)
-        nn.init.xavier_uniform_(self.hidden_to_logits.weight, gain=1.0)
+        nn.init.xavier_uniform_(self.hidden_to_logitss.weight, gain=1.0)
         ### END YOUR CODE
 
     def embedding_lookup(self, t):

@@ -116,22 +116,21 @@ def minibatch_parse(sentences, model, batch_size):
         partial_parses.append(PartialParse(sentence))
     
     unfinished_parses = partial_parses[:]
-    
+
     while len(unfinished_parses) != 0:
+        
         mini_parses = unfinished_parses[0:batch_size]
-        unfinished_parses = unfinished_parses[batch_size:]
-
         pred_transitions = model.predict(mini_parses)
-        i = 0
-        for mini_parse in mini_parses:
-            if len(mini_parse.buffer) != 0 and len(mini_parse.stack) != 1:
-                mini_parse.parse_step(pred_transitions[i])
-                print(i)
-                print(mini_parse)
-                i += 1
-
-
-
+        
+        for i in range(len(mini_parses)):
+            mini_parses[i].parse_step(pred_transitions[i])
+            if len(mini_parses[i].buffer) == 0 and len(mini_parses[i].stack) == 1:
+                unfinished_parses.remove(mini_parses[i])
+        
+    for i in range(len(partial_parses)):
+        dependencies.append(partial_parses[i].dependencies)
+        
+        
 
     ### END YOUR CODE
 
